@@ -14,3 +14,9 @@ entryPointException:
 accessDenied:
   code: "-1003"
   msg: "보유한 권한으로 접근할 수 없는 리소스 입니다. SadPepe :("
+notFound:
+  code: "404"
+  msg: "존재하지 않는 페이지입니다."
+notImplemented:
+  code: "501"
+  msg: "해당 Http method가 구현되지 않았습니다."

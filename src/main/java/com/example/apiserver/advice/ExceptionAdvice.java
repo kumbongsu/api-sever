@@ -3,13 +3,16 @@ package com.example.apiserver.advice;
 import com.example.apiserver.advice.exception.CAuthenticationEntryPointException;
 import com.example.apiserver.advice.exception.CEmailSigninFailedException;
 import com.example.apiserver.advice.exception.CUserNotFoundException;
+import com.example.apiserver.model.response.ApiDataResult;
 import com.example.apiserver.model.response.CommonResult;
 import com.example.apiserver.service.ResponseService;
+import javassist.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -26,36 +29,48 @@ public class ExceptionAdvice {
 
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    protected CommonResult defaultException(HttpServletRequest request, Exception e) {
+    protected ApiDataResult defaultException(HttpServletRequest request, Exception e) {
         // CommonResult : 응답 결과에 대한 정보
-        return responseService.getFailResult(Integer.valueOf(getMessage("unKnown.code")), getMessage("unKnown.msg"));
+        return responseService.failResult(Integer.valueOf(getMessage("unKnown.code")), getMessage("unKnown.msg"));
         // 예외 처리 메시지를 MessageSource에서 가져오도록 수정, exception_ko.yml 파일에서 가져온 것임
         // getFailResult : setSuccess, setCode, setMsg
     }
 
     @ExceptionHandler(CUserNotFoundException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    protected CommonResult userNotFoundException(HttpServletRequest request, CUserNotFoundException e) {
+    protected ApiDataResult userNotFoundException(HttpServletRequest request, CUserNotFoundException e) {
         // CommonResult : 응답 결과에 대한 정보
-        return responseService.getFailResult(Integer.valueOf(getMessage("userNotFound.code")), getMessage("userNotFound.msg"));
+        return responseService.failResult(Integer.valueOf(getMessage("userNotFound.code")), getMessage("userNotFound.msg"));
         // 예외 처리 메시지를 MessageSource에서 가져오도록 수정
         // getFailResult : setSuccess, setCode, setMsg
     }
 
     @ExceptionHandler(CEmailSigninFailedException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    protected CommonResult emailSigninFailed(HttpServletRequest request, CEmailSigninFailedException e) {
-        return responseService.getFailResult(Integer.valueOf(getMessage("emailSigninFailed.code")), getMessage("emailSigninFailed.msg"));
+    protected ApiDataResult emailSigninFailed(HttpServletRequest request, CEmailSigninFailedException e) {
+        return responseService.failResult(Integer.valueOf(getMessage("emailSigninFailed.code")), getMessage("emailSigninFailed.msg"));
     }
 
     @ExceptionHandler(CAuthenticationEntryPointException.class)
-    public CommonResult authenticationEntryPointException(HttpServletRequest request, CAuthenticationEntryPointException e) {
-        return responseService.getFailResult(Integer.valueOf(getMessage("entryPointException.code")), getMessage("entryPointException.msg"));
+    public ApiDataResult authenticationEntryPointException(HttpServletRequest request, CAuthenticationEntryPointException e) {
+        return responseService.failResult(Integer.valueOf(getMessage("entryPointException.code")), getMessage("entryPointException.msg"));
     }
 
     @ExceptionHandler(AccessDeniedException.class)
-    public CommonResult AccessDeniedException(HttpServletRequest request, AccessDeniedException e) {
-        return responseService.getFailResult((Integer.valueOf(getMessage("accessDenied.code"))), getMessage("accessDenied.msg"));
+    public ApiDataResult AccessDeniedException(HttpServletRequest request, AccessDeniedException e) {
+        return responseService.failResult((Integer.valueOf(getMessage("accessDenied.code"))), getMessage("accessDenied.msg"));
+    }
+
+    @ExceptionHandler(NotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    protected ApiDataResult NotFoundException(HttpServletRequest request, Exception e) {
+        return responseService.failResult(Integer.valueOf(getMessage("unKnown.code")), getMessage("unKnown.msg"));
+    }
+
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    @ResponseStatus(HttpStatus.NOT_IMPLEMENTED)
+    protected ApiDataResult HttpRequestMethodNotSupportedException(HttpServletRequest request, Exception e) {
+        return responseService.failResult(Integer.valueOf(getMessage("notImplemented.code")), getMessage("notImplemented.msg"), e);
     }
 
     // code 정보에 해당하는 메시지를 조회한다.
