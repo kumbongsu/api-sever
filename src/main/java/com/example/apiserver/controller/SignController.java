@@ -1,8 +1,10 @@
 package com.example.apiserver.controller;
 
+import com.example.apiserver.Constants;
 import com.example.apiserver.advice.exception.CEmailSigninFailedException;
 import com.example.apiserver.config.security.JwtTokenProvider;
 import com.example.apiserver.entity.User;
+import com.example.apiserver.model.response.ApiDataResult;
 import com.example.apiserver.model.response.CommonResult;
 import com.example.apiserver.model.response.SingleResult;
 import com.example.apiserver.repository.UserJpaRepository;
@@ -22,7 +24,7 @@ import java.util.Collections;
 @Api(tags = {"1. Sign"})
 @RequiredArgsConstructor
 @RestController
-@RequestMapping(value = "/v1")
+@RequestMapping(value = Constants.API + "/" + Constants.VERSION)
 public class SignController {
 
     private final UserJpaRepository userJpaRepo; // jpa 쿼리 활용
@@ -32,21 +34,21 @@ public class SignController {
 
     @ApiOperation(value = "로그인", notes = "이메일 회원 로그인을 한다.")
     @PostMapping(value = "/signin")
-    public SingleResult<String> signin(@ApiParam(value = "회원ID : 이메일", required = true) @RequestParam String id,
+    public ApiDataResult signin(@ApiParam(value = "회원ID : 이메일", required = true) @RequestParam String id,
                                        @ApiParam(value = "비밀번호", required = true) @RequestParam String password) {
         User user = userJpaRepo.findByUid(id).orElseThrow(CEmailSigninFailedException::new);
         if (!passwordEncoder.matches(password, user.getPassword()))
             // matches : 평문, 암호문 패스워드 비교 후 boolean 결과 return
             throw new CEmailSigninFailedException();
 
-        return responseService.getSingleResult(jwtTokenProvider.createToken(String.valueOf(user.getMsrl()), user.getRoles()));
+        return responseService.result(jwtTokenProvider.createToken(String.valueOf(user.getMsrl()), user.getRoles()));
     }
 
     @ApiOperation(value = "가입", notes = "회원가입을 한다.")
     @PostMapping(value = "/signup")
-    public CommonResult signup(@ApiParam(value = "회원ID : 이메일", required = true) @RequestParam String id,
-                               @ApiParam(value = "비밀번호", required = true) @RequestParam String password,
-                               @ApiParam(value = "이름", required = true) @RequestParam String name) {
+    public ApiDataResult signup(@ApiParam(value = "회원ID : 이메일", required = true) @RequestParam String id,
+                                @ApiParam(value = "비밀번호", required = true) @RequestParam String password,
+                                @ApiParam(value = "이름", required = true) @RequestParam String name) {
 
         userJpaRepo.save(User.builder()
                 .uid(id)
@@ -54,6 +56,6 @@ public class SignController {
                 .name(name)
                 .roles(Collections.singletonList("ROLE_USER"))
                 .build());
-        return responseService.getSuccessResult();
+        return responseService.successResult();
     }
 }
