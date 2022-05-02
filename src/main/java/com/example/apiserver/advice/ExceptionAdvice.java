@@ -1,8 +1,8 @@
 package com.example.apiserver.advice;
 
-import com.example.apiserver.advice.exception.CAuthenticationEntryPointException;
-import com.example.apiserver.advice.exception.CEmailSigninFailedException;
-import com.example.apiserver.advice.exception.CUserNotFoundException;
+import com.example.apiserver.advice.exception.AuthenticationEntryPointException;
+import com.example.apiserver.advice.exception.EmailSigninFailedException;
+import com.example.apiserver.advice.exception.UserNotFoundException;
 import com.example.apiserver.model.response.CommonResult;
 import com.example.apiserver.service.ResponseService;
 import lombok.RequiredArgsConstructor;
@@ -33,23 +33,23 @@ public class ExceptionAdvice {
         // getFailResult : setSuccess, setCode, setMsg
     }
 
-    @ExceptionHandler(CUserNotFoundException.class)
+    @ExceptionHandler(UserNotFoundException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    protected CommonResult userNotFoundException(HttpServletRequest request, CUserNotFoundException e) {
+    protected CommonResult userNotFoundException(HttpServletRequest request, UserNotFoundException e) {
         // CommonResult : 응답 결과에 대한 정보
         return responseService.getFailResult(Integer.valueOf(getMessage("userNotFound.code")), getMessage("userNotFound.msg"));
         // 예외 처리 메시지를 MessageSource에서 가져오도록 수정
         // getFailResult : setSuccess, setCode, setMsg
     }
 
-    @ExceptionHandler(CEmailSigninFailedException.class)
+    @ExceptionHandler(EmailSigninFailedException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    protected CommonResult emailSigninFailed(HttpServletRequest request, CEmailSigninFailedException e) {
+    protected CommonResult emailSigninFailed(HttpServletRequest request, EmailSigninFailedException e) {
         return responseService.getFailResult(Integer.valueOf(getMessage("emailSigninFailed.code")), getMessage("emailSigninFailed.msg"));
     }
 
-    @ExceptionHandler(CAuthenticationEntryPointException.class)
-    public CommonResult authenticationEntryPointException(HttpServletRequest request, CAuthenticationEntryPointException e) {
+    @ExceptionHandler(AuthenticationEntryPointException.class)
+    public CommonResult authenticationEntryPointException(HttpServletRequest request, AuthenticationEntryPointException e) {
         return responseService.getFailResult(Integer.valueOf(getMessage("entryPointException.code")), getMessage("entryPointException.msg"));
     }
 

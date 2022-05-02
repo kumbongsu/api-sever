@@ -1,6 +1,6 @@
 package com.example.apiserver.controller.exception;
 
-import com.example.apiserver.advice.exception.CAuthenticationEntryPointException;
+import com.example.apiserver.advice.exception.AuthenticationEntryPointException;
 import com.example.apiserver.model.response.CommonResult;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
@@ -15,7 +15,7 @@ public class ExceptionController {
 
     @GetMapping(value = "/entrypoint")
     public CommonResult entrypointException() {
-        throw new CAuthenticationEntryPointException();
+        throw new AuthenticationEntryPointException();
     }
 
     @GetMapping(value = "/accessdenied")

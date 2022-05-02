@@ -1,6 +1,6 @@
 package com.example.apiserver.controller;
 
-import com.example.apiserver.advice.exception.CEmailSigninFailedException;
+import com.example.apiserver.advice.exception.EmailSigninFailedException;
 import com.example.apiserver.config.security.JwtTokenProvider;
 import com.example.apiserver.entity.User;
 import com.example.apiserver.model.response.CommonResult;
@@ -34,10 +34,10 @@ public class SignController {
     @PostMapping(value = "/signin")
     public SingleResult<String> signin(@ApiParam(value = "회원ID : 이메일", required = true) @RequestParam String id,
                                        @ApiParam(value = "비밀번호", required = true) @RequestParam String password) {
-        User user = userJpaRepo.findByUid(id).orElseThrow(CEmailSigninFailedException::new);
+        User user = userJpaRepo.findByUid(id).orElseThrow(EmailSigninFailedException::new);
         if (!passwordEncoder.matches(password, user.getPassword()))
             // matches : 평문, 암호문 패스워드 비교 후 boolean 결과 return
-            throw new CEmailSigninFailedException();
+            throw new EmailSigninFailedException();
 
         return responseService.getSingleResult(jwtTokenProvider.createToken(String.valueOf(user.getMsrl()), user.getRoles()));
     }

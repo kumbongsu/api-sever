@@ -1,6 +1,6 @@
 package com.example.apiserver.config.security;
 
-import com.example.apiserver.advice.exception.CUserNotFoundException;
+import com.example.apiserver.advice.exception.UserNotFoundException;
 import com.example.apiserver.repository.UserJpaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -14,6 +14,6 @@ public class CustomUserDetailService implements UserDetailsService {
     private final UserJpaRepository userJpaRepo;
 
     public UserDetails loadUserByUsername(String userPk) {
-        return userJpaRepo.findById(Long.valueOf(userPk)).orElseThrow(CUserNotFoundException::new);
+        return userJpaRepo.findById(Long.valueOf(userPk)).orElseThrow(UserNotFoundException::new);
     }
 }

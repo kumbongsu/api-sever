@@ -1,6 +1,6 @@
 package com.example.apiserver.controller;
 
-import com.example.apiserver.advice.exception.CUserNotFoundException;
+import com.example.apiserver.advice.exception.UserNotFoundException;
 import com.example.apiserver.entity.User;
 import com.example.apiserver.model.response.CommonResult;
 import com.example.apiserver.model.response.ListResult;
@@ -26,10 +26,6 @@ public class UserController {
     private final ResponseService responseService; // 결과를 처리하는 Service
 
     @Secured("ROLE_USER")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "X-AUTH-TOKEN", value = "로그인 성공 후 access_token",
-                    required = true, dataType = "String", paramType = "header")
-    })
     @ApiOperation(value = "회원 리스트 조회", notes = "모든 회원을 조회한다.") // 각각의 resource에 제목과 설명 표시
     @GetMapping(value = "/users") // user 테이블의 모든 정보를 읽어옴
     public ListResult<User> findAllUser() { // 데이터가 1개 이상일 수 있기에 List<User>로 선언
@@ -38,25 +34,16 @@ public class UserController {
     }
 
     @PreAuthorize("hasRole('ROLE_USER')")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "X-AUTH-TOKEN", value = "로그인 성공 후 access_token",
-                    required = false, dataType = "String", paramType = "header")
-    })
     @ApiOperation(value = "회원 단건 조회", notes = "회원번호(msrl)로 회원을 조회한다.")
     @GetMapping(value = "/user")
     public SingleResult<User> findUserById() {
         // SecurityContext에서 인증 받은 회원의 정보를 얻어온다.
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String id = authentication.getName();
-        System.out.println("id====" + id);
-        return responseService.getSingleResult(userJpaRepo.findByUid(id).orElseThrow(CUserNotFoundException::new));
+        return responseService.getSingleResult(userJpaRepo.findByUid(id).orElseThrow(UserNotFoundException::new));
         // 결과 데이터가 단일건인 경우 getSingleResult를 이용하여 결과를 출력
     }
 
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "X-AUTH-TOKEN", value = "로그인 성공 후 access_token",
-                    required = true, dataType = "String", paramType = "header")
-    })
     @ApiOperation(value = "회원 수정", notes = "회원정보를 수정한다.")
     @PutMapping(value = "/user")
     public SingleResult<User> modify(
@@ -70,10 +57,6 @@ public class UserController {
         return responseService.getSingleResult(userJpaRepo.save(user));
     }
 
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "X-AUTH-TOKEN", value = "로그인 성공 후 access_token",
-                    required = true, dataType = "String", paramType = "header")
-    })
     @ApiOperation(value = "회원 삭제", notes = "msrl로 회원정보를 삭제한다.")
     @DeleteMapping(value = "/user/{msrl}")
     public CommonResult delete (
