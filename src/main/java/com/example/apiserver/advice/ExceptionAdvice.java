@@ -38,7 +38,7 @@ public class ExceptionAdvice {
 
     @ExceptionHandler(UserNotFoundException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    protected ApiDataResult userNotFoundException(HttpServletRequest request, CUserNotFoundException e) {
+    protected ApiDataResult userNotFoundException(HttpServletRequest request, UserNotFoundException e) {
         // CommonResult : 응답 결과에 대한 정보
         return responseService.failResult(Integer.valueOf(getMessage("userNotFound.code")), getMessage("userNotFound.msg"));
         // 예외 처리 메시지를 MessageSource에서 가져오도록 수정

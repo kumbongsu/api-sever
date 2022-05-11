@@ -41,6 +41,16 @@ public class User implements UserDetails {
     // name column을 명시, 필수 입력, 길이 100 제한
     private String name;
 
+    private int age;
+
+    public User(long msrl, String uid, String name, int age) {
+        this.msrl = msrl;
+        this.uid = uid;
+        this.name = name;
+        this.age = age;
+
+    }
+
     @ElementCollection(fetch = FetchType.EAGER)
     @Builder.Default
     private List<String> roles = new ArrayList<>(); // 회원이 가지고 있는 권한 정보들
@@ -79,4 +89,5 @@ public class User implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
+
 }

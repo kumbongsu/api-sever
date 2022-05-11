@@ -1,22 +1,24 @@
 package com.example.apiserver.controller;
 
 import com.example.apiserver.Constants;
+import com.example.apiserver.advice.exception.UserNotFoundException;
+import com.example.apiserver.dto.UserDto;
 import com.example.apiserver.entity.User;
 import com.example.apiserver.model.response.ApiDataResult;
-import com.example.apiserver.model.response.CommonResult;
-import com.example.apiserver.model.response.ListResult;
-import com.example.apiserver.model.response.SingleResult;
+
 import com.example.apiserver.repository.UserJpaRepository;
 import com.example.apiserver.service.ResponseService;
+import com.example.apiserver.service.UserService;
+import com.example.apiserver.vo.UserVo;
 import io.swagger.annotations.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 //@PreAuthorize("hasRole('ROLE_USER')") //추가내용
 @Api(tags = {"2. User"}) // UserController를 대표하는 최상단 타이틀 영역에 표시될 값 세팅
@@ -27,6 +29,7 @@ public class UserController {
 
     private final UserJpaRepository userJpaRepo; // Jpa를 활용한 CRUD 쿼리 가능
     private final ResponseService responseService; // 결과를 처리하는 Service
+    private UserService userService;
 
     @Secured("ROLE_USER")
     @ApiOperation(value = "회원 리스트 조회", notes = "모든 회원을 조회한다.") // 각각의 resource에 제목과 설명 표시
@@ -43,7 +46,7 @@ public class UserController {
         // SecurityContext에서 인증 받은 회원의 정보를 얻어온다.
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String id = authentication.getName();
-        return responseService.result(userJpaRepo.findByUid(id).orElseThrow(CUserNotFoundException::new));
+        return responseService.result(userJpaRepo.findByUid(id).orElseThrow(UserNotFoundException::new));
         // 결과 데이터가 단일건인 경우 getSingleResult를 이용하여 결과를 출력
     }
 
@@ -67,5 +70,15 @@ public class UserController {
         userJpaRepo.deleteById(msrl); // deleteById id를 받아 delete query 실행
         return responseService.successResult();
         // 성공 결과 정보만 필요한 경우 getSuccessResult()를 이용하여 결과를 출력
+    }
+
+    @Secured("ROLE_USER")
+    @ApiOperation(value = "회원 리스트 검색 조회", notes = "모든 회원을 검색 한다.") //
+    @GetMapping("/user/search")
+    public Page<UserDto> searchUser(UserVo condition, Pageable pageable) {
+        System.out.println("111111111111111111 ===="+ pageable.getPageSize());
+        System.out.println("222222222222222222 ===="+ pageable.getOffset());
+        System.out.println("333333333333333333 ===="+ pageable.getPageNumber());
+        return userJpaRepo.search(condition, pageable);
     }
 }
